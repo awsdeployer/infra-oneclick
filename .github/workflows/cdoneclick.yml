@@ -23,6 +23,7 @@ jobs:
           kubectl get ns
           kubectl apply -f k8s/ingress/
           kubectl get svc -n ingress-nginx
+          kubectl apply -f k8s/pv.yaml
 
       # ======================
       # AWS-ASHAPP
