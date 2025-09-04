@@ -80,7 +80,6 @@ jobs:
           cd MONITOR-LOGS
           GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using MONITOR-LOGS image with SHA: $GIT_SHA"
-          kubectl delete pv mysql-pv
           kubectl apply -f backend/k8s/pv/
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/flask-monitor \
