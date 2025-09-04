@@ -87,6 +87,11 @@ jobs:
             -n ashapp
           kubectl rollout status deployment/flask-monitor -n ashapp
           cd ..
+          RUNNING=$(kubectl get pods -n ashapp -l app=flask-monitor --field-selector=status.phase=Running --no-headers | wc -l)
+          if [ "$RUNNING" -ne 1 ]; then
+            echo "Error: Expected 1 running pod for flask-monitor, but found $RUNNING"
+            exit 1
+          fi
 
       # ======================
       # Cleanup cloned repos
