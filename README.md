@@ -1,3 +1,25 @@
+Delete the PV using the correct name:
+
+kubectl delete pv mysql-pv
+
+
+If you still encounter issues, it may be because the PV is bound to a PVC. Check if there’s a PVC claim:
+
+kubectl get pvc -n ashapp
+
+
+If there’s a claim (mysql-storage-mysql-0) still bound to the PV, you might need to delete the PVC first:
+
+kubectl delete pvc mysql-storage-mysql-0 -n ashapp
+
+
+Then delete the PV again:
+
+kubectl delete pv mysql-pv
+
+
+
+
 DOCKER_HUB_USERNAME
 
 DOCKER_HUB_ACCESS_TOKEN
