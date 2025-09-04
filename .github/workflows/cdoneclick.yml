@@ -31,7 +31,7 @@ jobs:
         run: |
           git clone https://github.com/awsdeployer/MONITOR-LOGS.git
           cd MONITOR-LOGS
-          GIT_SHA=$(cat backend/monitor-logs/GIT_SHA.txt)
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using MONITOR-LOGS image with SHA: $GIT_SHA"
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/flask-monitor \
@@ -47,7 +47,7 @@ jobs:
         run: |
           git clone https://github.com/awsdeployer/AWS-ASHAPP.git
           cd AWS-ASHAPP
-          GIT_SHA=$(cat backend/aws-ashapp/GIT_SHA.txt)
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using AWS-ASHAPP image with SHA: $GIT_SHA"
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/flask-app \
@@ -63,7 +63,7 @@ jobs:
         run: |
           git clone https://github.com/awsdeployer/HISTORY-SERVICES.git
           cd HISTORY-SERVICES
-          GIT_SHA=$(cat backend/history-services/GIT_SHA.txt)
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using HISTORY-SERVICES image with SHA: $GIT_SHA"
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/history-service \
@@ -79,7 +79,7 @@ jobs:
         run: |
           git clone https://github.com/awsdeployer/AUTOMATIC-DEPLOYER.git
           cd AUTOMATIC-DEPLOYER
-          GIT_SHA=$(cat backend/automatic-deployer/GIT_SHA.txt)
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using AUTOMATIC-DEPLOYER image with SHA: $GIT_SHA"
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/deployer-app \
