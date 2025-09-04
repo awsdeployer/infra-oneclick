@@ -80,7 +80,7 @@ jobs:
           cd MONITOR-LOGS
           GIT_SHA=$(cat backend/GIT_SHA.txt)
           echo "Using MONITOR-LOGS image with SHA: $GIT_SHA"
-          kubectl apply -f pv/
+          kubectl apply -f backend/k8s/pv/
           kubectl apply -f backend/k8s/ --recursive
           kubectl set image deployment/flask-monitor \
             flask-monitor=${{ secrets.DOCKER_HUB_USERNAME }}/flask-monitor:$GIT_SHA \
