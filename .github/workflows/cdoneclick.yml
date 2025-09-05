@@ -1,0 +1,103 @@
+name: CD - oneclick
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      # ======================
+      # Checkout current repo
+      # ======================
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+
+      # ======================
+      # Setup cluster context
+      # ======================
+      - name: Apply Ingress, PV & Namespace
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl get ns
+          kubectl apply -f k8s/ingress/
+          kubectl get svc -n ingress-nginx
+          kubectl apply -f k8s/pv
+          kubectl get pv
+
+      # ======================
+      # MONITOR-LOGS
+      # ======================
+      - name: Checkout MONITOR-LOGS
+        uses: actions/checkout@v4
+        with:
+          repository: awsdeployer/MONITOR-LOGS
+          path: MONITOR-LOGS
+
+      - name: Apply MONITOR-LOGS manifests
+        run: |
+          kubectl apply -f MONITOR-LOGS/backend/k8s/pv/
+          kubectl apply -f MONITOR-LOGS/backend/k8s/ --recursive
+          RUNNING=$(kubectl get pods -n ashapp -l app=flask-monitor --field-selector=status.phase=Running --no-headers | wc -l)
+          if [ "$RUNNING" -ne 1 ]; then
+            echo "Error: Expected 1 running pod for flask-monitor, but found $RUNNING"
+            exit 1
+          fi
+
+      # ======================
+      # HISTORY-SERVICES
+      # ======================
+      - name: Checkout HISTORY-SERVICES
+        uses: actions/checkout@v4
+        with:
+          repository: awsdeployer/HISTORY-SERVICES
+          path: HISTORY-SERVICES
+
+      - name: Apply HISTORY-SERVICES manifests
+        run: |
+          kubectl apply -f HISTORY-SERVICES/backend/k8s/ --recursive
+          RUNNING=$(kubectl get pods -n ashapp -l app=history-service --field-selector=status.phase=Running --no-headers | wc -l)
+          if [ "$RUNNING" -ne 1 ]; then
+            echo "Error: Expected 1 running pod for history-service, but found $RUNNING"
+            exit 1
+          fi
+
+      # ======================
+      # AWS-ASHAPP
+      # ======================
+      - name: Checkout AWS-ASHAPP
+        uses: actions/checkout@v4
+        with:
+          repository: awsdeployer/AWS-ASHAPP
+          path: AWS-ASHAPP
+
+      - name: Apply AWS-ASHAPP manifests
+        run: |
+          kubectl apply -f AWS-ASHAPP/backend/k8s/ --recursive
+          RUNNING=$(kubectl get pods -n ashapp -l app=flask-app --field-selector=status.phase=Running --no-headers | wc -l)
+          if [ "$RUNNING" -ne 1 ]; then
+            echo "Error: Expected 1 running pod for flask-app, but found $RUNNING"
+            exit 1
+          fi
+
+      # ======================
+      # AUTOMATIC-DEPLOYER
+      # ======================
+      - name: Checkout AUTOMATIC-DEPLOYER
+        uses: actions/checkout@v4
+        with:
+          repository: awsdeployer/AUTOMATIC-DEPLOYER
+          path: AUTOMATIC-DEPLOYER
+
+      - name: Apply AUTOMATIC-DEPLOYER manifests
+        run: |
+          kubectl apply -f AUTOMATIC-DEPLOYER/backend/k8s/ --recursive
+          RUNNING=$(kubectl get pods -n ashapp -l app=deployer-app --field-selector=status.phase=Running --no-headers | wc -l)
+          if [ "$RUNNING" -ne 1 ]; then
+            echo "Error: Expected 1 running pod for deployer-app, but found $RUNNING"
+            exit 1
+          fi
