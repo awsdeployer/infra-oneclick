@@ -23,54 +23,10 @@ jobs:
           kubectl get ns
           kubectl apply -f k8s/ingress/
           kubectl get svc -n ingress-nginx
+          kubectl apply -f k8s/pv
+          kubectl get pv
 
-      # ======================
-      # AWS-ASHAPP
-      # ======================
-      - name: Deploy AWS-ASHAPP
-        run: |
-          git clone https://github.com/awsdeployer/AWS-ASHAPP.git
-          cd AWS-ASHAPP
-          GIT_SHA=$(cat backend/GIT_SHA.txt)
-          echo "Using AWS-ASHAPP image with SHA: $GIT_SHA"
-          kubectl apply -f backend/k8s/ --recursive
-          kubectl set image deployment/flask-app \
-            flask-app=${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:$GIT_SHA \
-            -n ashapp
-          kubectl rollout status deployment/flask-app -n ashapp
-          cd ..
-
-      # ======================
-      # HISTORY-SERVICES
-      # ======================
-      - name: Deploy HISTORY-SERVICES
-        run: |
-          git clone https://github.com/awsdeployer/HISTORY-SERVICES.git
-          cd HISTORY-SERVICES
-          GIT_SHA=$(cat backend/GIT_SHA.txt)
-          echo "Using HISTORY-SERVICES image with SHA: $GIT_SHA"
-          kubectl apply -f backend/k8s/ --recursive
-          kubectl set image deployment/history-service \
-            history-service=${{ secrets.DOCKER_HUB_USERNAME }}/history-service:$GIT_SHA \
-            -n ashapp
-          kubectl rollout status deployment/history-service -n ashapp
-          cd ..
-
-      # ======================
-      # AUTOMATIC-DEPLOYER
-      # ======================
-      - name: Deploy AUTOMATIC-DEPLOYER
-        run: |
-          git clone https://github.com/awsdeployer/AUTOMATIC-DEPLOYER.git
-          cd AUTOMATIC-DEPLOYER
-          GIT_SHA=$(cat backend/GIT_SHA.txt)
-          echo "Using AUTOMATIC-DEPLOYER image with SHA: $GIT_SHA"
-          kubectl apply -f backend/k8s/ --recursive
-          kubectl set image deployment/deployer-app \
-            deployer-app=${{ secrets.DOCKER_HUB_USERNAME }}/deployer-app:$GIT_SHA \
-            -n ashapp
-          kubectl rollout status deployment/deployer-app -n ashapp
-          cd ..
+      
       # ======================
       # MONITOR-LOGS
       # ======================
@@ -92,6 +48,54 @@ jobs:
             echo "Error: Expected 1 running pod for flask-monitor, but found $RUNNING"
             exit 1
           fi
+      
+      # ======================
+      # HISTORY-SERVICES
+      # ======================
+      - name: Deploy HISTORY-SERVICES
+        run: |
+          git clone https://github.com/awsdeployer/HISTORY-SERVICES.git
+          cd HISTORY-SERVICES
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
+          echo "Using HISTORY-SERVICES image with SHA: $GIT_SHA"
+          kubectl apply -f backend/k8s/ --recursive
+          kubectl set image deployment/history-service \
+            history-service=${{ secrets.DOCKER_HUB_USERNAME }}/history-service:$GIT_SHA \
+            -n ashapp
+          kubectl rollout status deployment/history-service -n ashapp
+          cd ..
+      
+      # ======================
+      # AWS-ASHAPP
+      # ======================
+      - name: Deploy AWS-ASHAPP
+        run: |
+          git clone https://github.com/awsdeployer/AWS-ASHAPP.git
+          cd AWS-ASHAPP
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
+          echo "Using AWS-ASHAPP image with SHA: $GIT_SHA"
+          kubectl apply -f backend/k8s/ --recursive
+          kubectl set image deployment/flask-app \
+            flask-app=${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:$GIT_SHA \
+            -n ashapp
+          kubectl rollout status deployment/flask-app -n ashapp
+          cd ..
+
+      # ======================
+      # AUTOMATIC-DEPLOYER
+      # ======================
+      - name: Deploy AUTOMATIC-DEPLOYER
+        run: |
+          git clone https://github.com/awsdeployer/AUTOMATIC-DEPLOYER.git
+          cd AUTOMATIC-DEPLOYER
+          GIT_SHA=$(cat backend/GIT_SHA.txt)
+          echo "Using AUTOMATIC-DEPLOYER image with SHA: $GIT_SHA"
+          kubectl apply -f backend/k8s/ --recursive
+          kubectl set image deployment/deployer-app \
+            deployer-app=${{ secrets.DOCKER_HUB_USERNAME }}/deployer-app:$GIT_SHA \
+            -n ashapp
+          kubectl rollout status deployment/deployer-app -n ashapp
+          cd ..
 
       # ======================
       # Cleanup cloned repos
