@@ -6,7 +6,7 @@ on:
       - 'k8s/**'
 
 jobs:
-  validate-and-deploy:
+  INFRA-ONECLICK-K8S:
     runs-on: self-hosted
 
     steps:
