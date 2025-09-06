@@ -53,7 +53,7 @@ helm install prometheus prometheus-community/prometheus \
   --set nodeExporter.enabled=false
 
 # Expose Prometheus server as NodePort 32000
-kubectl patch svc prometheus-server -n monitoring -p '{"spec":{"type":"NodePort","ports":[{"port":9090,"targetPort":9090,"nodePort":32000}]}}'
+kubectl patch svc prometheus-server -n monitoring -p '{"spec":{"type":"NodePort","ports":[{"name":"web","port":9090,"targetPort":9090,"nodePort":32000}]}}'
 
 # Install Grafana with NodePort 32001
 helm install grafana grafana/grafana -n monitoring \
