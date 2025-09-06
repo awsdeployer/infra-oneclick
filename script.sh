@@ -32,4 +32,34 @@ echo "Kubernetes ingress setup."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 echo "Kubernetes metrics-server setup"
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+# Create namespace
+kubectl create namespace monitoring || true
+
+# Install Prometheus
+helm install prometheus prometheus-community/prometheus \
+  --namespace monitoring \
+  --set server.persistentVolume.enabled=false \
+  --set server.resources.requests.cpu=0 \
+  --set server.resources.requests.memory=0 \
+  --set alertmanager.enabled=false \
+  --set pushgateway.enabled=false \
+  --set kubeStateMetrics.enabled=false \
+  --set nodeExporter.enabled=false
+
+# Expose Prometheus server as NodePort 32000
+kubectl patch svc prometheus-server -n monitoring -p '{"spec":{"type":"NodePort","ports":[{"port":9090,"targetPort":9090,"nodePort":32000}]}}'
+
+# Install Grafana with NodePort 32001
+helm install grafana grafana/grafana -n monitoring \
+  --set persistence.enabled=false \
+  --set adminPassword='admin' \
+  --set service.type=NodePort \
+  --set service.nodePort=32001
+
+# Get Node IP
+export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
+
+# Print URLs
+echo "Prometheus URL: http://$NODE_IP:32000"
+echo "Grafana URL: http://$NODE_IP:32001"
 
