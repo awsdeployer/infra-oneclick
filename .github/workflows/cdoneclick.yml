@@ -40,7 +40,6 @@ jobs:
 
       - name: Apply MONITOR-LOGS manifests
         run: |
-          kubectl apply -f MONITOR-LOGS/backend/k8s/pv/
           kubectl apply -f MONITOR-LOGS/backend/k8s/ --recursive
           RUNNING=$(kubectl get pods -n ashapp -l app=flask-monitor --field-selector=status.phase=Running --no-headers | wc -l)
           if [ "$RUNNING" -ne 1 ]; then
