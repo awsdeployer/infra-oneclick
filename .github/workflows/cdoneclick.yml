@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  INFRA-ONECLICK-DEPLOY:
     runs-on: self-hosted
 
     steps:
