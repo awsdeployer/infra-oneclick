@@ -36,9 +36,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: awsdeployer/MONITOR-LOGS-MICROSERVICE
-          path: MONITOR-LOGS
+          path: MONITOR-LOGS-MICROSERVICE
 
-      - name: Apply MONITOR-LOGS manifests
+      - name: Apply MONITOR-LOGS-MICROSERVICE manifests
         run: |
           kubectl apply -f MONITOR-LOGS-MICROSERVICE/backend/k8s/ --recursive
           kubectl wait --for=condition=ready pod -l app=flask-monitor -n ashapp --timeout=180s
